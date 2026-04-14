@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --orange: #FF5500;
   --orange-h: #E64D00;
