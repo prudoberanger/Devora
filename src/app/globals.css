@@ -534,7 +534,16 @@ img, svg { display: block; max-width: 100%; }
 .footerCopy { font-size: 0.82rem; color: rgba(255,255,255,0.3); }
 
 /* ── ANIMATIONS ── */
-@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 .a1 { animation: fadeUp 0.5s ease both; }
 .a2 { animation: fadeUp 0.5s 0.1s ease both; }
 .a3 { animation: fadeUp 0.5s 0.2s ease both; }
@@ -554,6 +563,7 @@ img, svg { display: block; max-width: 100%; }
   .footerInner { flex-direction: column; text-align: center; align-items: center; }
   .footerLinks { justify-content: center; }
   .ctaFeats { gap: 12px; }
+}
 
 /* ── DASHBOARD ── */
 .sidebar {
