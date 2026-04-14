@@ -1,4 +1,4 @@
-'use client';'use client';
+'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
@@ -32,37 +32,19 @@ export default function IdePage() {
 </body>
 </html>`);
 
-  // Langage mapping
   const LANG_MAP = {
     html:   { name: 'HTML',        piston: null,         color: '#e34c26' },
     css:    { name: 'CSS',         piston: null,         color: '#1572b6' },
     js:     { name: 'JavaScript',  piston: 'javascript', color: '#f7df1e' },
-    jsx:    { name: 'React JSX',   piston: 'javascript', color: '#61dafb' },
-    ts:     { name: 'TypeScript',  piston: 'typescript', color: '#3178c6' },
-    tsx:    { name: 'React TSX',   piston: 'typescript', color: '#61dafb' },
     py:     { name: 'Python',      piston: 'python',     color: '#3776ab' },
     java:   { name: 'Java',        piston: 'java',       color: '#ed8b00' },
     c:      { name: 'C',           piston: 'c',          color: '#00599c' },
     cpp:    { name: 'C++',         piston: 'cpp',        color: '#00599c' },
-    cs:     { name: 'C#',          piston: 'csharp',     color: '#239120' },
-    go:     { name: 'Go',          piston: 'go',         color: '#00add8' },
-    rs:     { name: 'Rust',        piston: 'rust',       color: '#ce412b' },
-    rb:     { name: 'Ruby',        piston: 'ruby',       color: '#cc342d' },
-    php:    { name: 'PHP',         piston: 'php',        color: '#777bb4' },
     sh:     { name: 'Shell',       piston: 'bash',       color: '#4eaa25' },
-    json:   { name: 'JSON',        piston: null,         color: '#f5a623' },
-    md:     { name: 'Markdown',    piston: null,         color: '#083fa1' },
-    xml:    { name: 'XML',         piston: null,         color: '#f5a623' },
-    sql:    { name: 'SQL',         piston: null,         color: '#e38c00' },
-    swift:  { name: 'Swift',       piston: 'swift',      color: '#fa7343' },
-    kt:     { name: 'Kotlin',      piston: 'kotlin',     color: '#7f52ff' },
   };
 
   const detectLang = (filename) => {
-    const f = filename.toLowerCase();
-    if ((f.includes('next') && (f.endsWith('.js') || f.endsWith('.ts') || f.endsWith('.jsx') || f.endsWith('.tsx'))))
-      return { name: 'Next.js', piston: 'javascript', color: '#ffffff' };
-    const ext = f.split('.').pop();
+    const ext = filename.split('.').pop().toLowerCase();
     return LANG_MAP[ext] || { name: ext.toUpperCase() || 'TXT', piston: null, color: '#7a7a7a' };
   };
 
@@ -85,7 +67,6 @@ export default function IdePage() {
     const curLn = before.split('\n').length;
     const curCol = before.split('\n').pop().length + 1;
 
-    // line numbers
     let html = '';
     for (let i = 1; i <= lines.length; i++) {
       html += `<span class="ln${i === curLn ? ' active' : ''}">${i}</span>`;
@@ -95,11 +76,9 @@ export default function IdePage() {
       lineNumbersRef.current.scrollTop = editorInnerRef.current.scrollTop;
     }
 
-    // highlight
-    const lh = 21; // --line-h
+    const lh = 21;
     if (lineHLRef.current) lineHLRef.current.style.top = (8 + (curLn - 1) * lh) + 'px';
 
-    // status
     if (stPosRef.current) stPosRef.current.textContent = `Ln ${curLn}, Col ${curCol}`;
     if (stCharsRef.current) stCharsRef.current.textContent = `${val.length} car.`;
   };
@@ -143,7 +122,7 @@ export default function IdePage() {
     const pistonLang = currentLang.piston;
     if (!pistonLang) {
       openModal(currentLang.name, false);
-      if (modalOutputRef.current) modalOutputRef.current.textContent = `Exécution de ${currentLang.name} non disponible en navigateur.\nUtilisez un terminal local.`;
+      if (modalOutputRef.current) modalOutputRef.current.textContent = `Exécution de ${currentLang.name} non disponible.`;
       return;
     }
 
@@ -214,13 +193,11 @@ export default function IdePage() {
   useEffect(() => {
     if (!editorRef.current) return;
 
-    // Initialisation
     editorRef.current.value = defaultCode;
     updateLang();
     updateUI();
     editorRef.current.focus();
 
-    // Gestionnaires d'événements
     const handleInput = () => updateUI();
     const handleClick = () => updateUI();
     const handleKeyup = () => updateUI();
@@ -237,13 +214,11 @@ export default function IdePage() {
     editorRef.current.addEventListener('select', handleSelect);
     if (editorInnerRef.current) editorInnerRef.current.addEventListener('scroll', handleScroll);
 
-    // Keyboard shortcuts
     const handleKeydown = (e) => {
       const s = editorRef.current.selectionStart;
       const end = editorRef.current.selectionEnd;
       const val = editorRef.current.value;
 
-      // Tab
       if (e.key === 'Tab') {
         e.preventDefault();
         if (s === end) {
@@ -254,7 +229,7 @@ export default function IdePage() {
           const endLine = val.substring(0, end).split('\n').length - 1;
           const shifted = allLines.map((ln, i) => {
             if (i < startLine || i > endLine) return ln;
-            return e.shiftKey ? (ln.startsWith('    ') ? ln.slice(4) : ln.startsWith('\t') ? ln.slice(1) : ln) : '    ' + ln;
+            return e.shiftKey ? (ln.startsWith('    ') ? ln.slice(4) : ln) : '    ' + ln;
           });
           const delta = e.shiftKey ? -4 : 4;
           editorRef.current.value = shifted.join('\n');
@@ -265,7 +240,6 @@ export default function IdePage() {
         return;
       }
 
-      // Enter with auto-indent
       if (e.key === 'Enter') {
         e.preventDefault();
         const lineStart = val.lastIndexOf('\n', s - 1) + 1;
@@ -283,7 +257,6 @@ export default function IdePage() {
         return;
       }
 
-      // Auto-close brackets
       const pairs = { '(': ')', '[': ']', '{': '}' };
       if (pairs[e.key]) {
         e.preventDefault();
@@ -300,14 +273,12 @@ export default function IdePage() {
         return;
       }
 
-      // Skip closing bracket
       if (Object.values(pairs).includes(e.key) && val[s] === e.key) {
         e.preventDefault();
         editorRef.current.selectionStart = editorRef.current.selectionEnd = s + 1;
         return;
       }
 
-      // Backspace delete pair
       if (e.key === 'Backspace' && s === end && s > 0) {
         const b = val[s - 1];
         const a = val[s];
@@ -320,7 +291,6 @@ export default function IdePage() {
         }
       }
 
-      // Ctrl shortcuts
       if (e.ctrlKey || e.metaKey) {
         if (e.key === 'z') { e.preventDefault(); document.execCommand('undo'); updateUI(); }
         if (e.key === 'y' || (e.shiftKey && e.key === 'z')) { e.preventDefault(); document.execCommand('redo'); updateUI(); }
@@ -346,39 +316,46 @@ export default function IdePage() {
 
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#1e1e1e', overflow: 'hidden' }}>
-      {/* Top bar */}
+      {/* Barre d’outils simplifiée */}
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '44px', background: '#181818', borderBottom: '1px solid #383838', display: 'flex', alignItems: 'center', padding: '0 6px', gap: '4px', zIndex: 100 }}>
-        <Link href="/dashboard" style={{ width: '32px', height: '32px', background: 'none', border: 'none', color: '#7a7a7a', cursor: 'pointer', borderRadius: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8L10 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </Link>
-        <div style={{ width: '1px', height: '20px', background: '#383838', margin: '0 2px' }}></div>
-        <div id="filename-wrap" style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '7px', overflow: 'hidden', padding: '0 4px' }}>
-          <div ref={langDotRef} style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#e34c26', flexShrink: 0 }}></div>
-          <input ref={filenameRef} id="filename" type="text" defaultValue="index.html" spellCheck="false" style={{ background: 'none', border: 'none', color: '#d4d4d4', fontFamily: 'JetBrains Mono, monospace', fontSize: '13px', fontWeight: '500', outline: 'none', width: '100%', caretColor: '#f5a623' }} />
+        <Link href="/dashboard" style={{ width: '32px', height: '32px', background: 'none', border: 'none', color: '#7a7a7a', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>←</Link>
+        <div style={{ width: '1px', height: '20px', background: '#383838' }}></div>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '7px' }}>
+          <div ref={langDotRef} style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#e34c26' }}></div>
+          <input ref={filenameRef} type="text" defaultValue="index.html" style={{ background: 'none', border: 'none', color: '#d4d4d4', fontFamily: 'monospace', fontSize: '13px', outline: 'none', width: '100%' }} />
         </div>
-        <div style={{ width: '1px', height: '20px', background: '#383838', margin: '0 2px' }}></div>
-        <button id="btn-undo" style={{ width: '32px', height: '32px', background: 'none', border: 'none', color: '#7a7a7a', cursor: 'pointer', borderRadius: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => { editorRef.current?.focus(); document.execCommand('undo'); updateUI(); }}>
-          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M2.5 6H9C10.933 6 12.5 7.567 12.5 9.5C12.5 11.433 10.933 13 9 13H6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M5 3.5L2.5 6L5 8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </button>
-        <button id="btn-redo" style={{ width: '32px', height: '32px', background: 'none', border: 'none', color: '#7a7a7a', cursor: 'pointer', borderRadius: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => { editorRef.current?.focus(); document.execCommand('redo'); updateUI(); }}>
-          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M12.5 6H6C4.067 6 2.5 7.567 2.5 9.5C2.5 11.433 4.067 13 6 13H8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M10 3.5L12.5 6L10 8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </button>
-        <button id="btn-fullscreen" style={{ width: '32px', height: '32px', background: 'none', border: 'none', color: '#7a7a7a', cursor: 'pointer', borderRadius: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => document.documentElement.requestFullscreen()}>
-          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M2 5V2H5M10 2H13V5M13 10V13H10M5 13H2V10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </button>
-        <div style={{ width: '1px', height: '20px', background: '#383838', margin: '0 2px' }}></div>
-        <button id="btn-save" style={{ width: '32px', height: '32px', background: 'none', border: 'none', color: '#7a7a7a', cursor: 'pointer', borderRadius: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={saveFile}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 13H13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/><path d="M8 2V10M8 10L5.5 7.5M8 10L10.5 7.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </button>
-        <button id="btn-run" style={{ width: '32px', height: '32px', background: 'none', border: 'none', color: '#f5a623', cursor: 'pointer', borderRadius: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={runCode}>
-          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M5 3L12 7.5L5 12V3Z" fill="currentColor" stroke="currentColor" strokeWidth="1" strokeLinejoin="round"/></svg>
-        </button>
+        <button onClick={saveFile} style={{ width: '32px', height: '32px', background: 'none', border: 'none', color: '#7a7a7a', cursor: 'pointer' }}>💾</button>
+        <button onClick={runCode} style={{ width: '32px', height: '32px', background: 'none', border: 'none', color: '#f5a623', cursor: 'pointer' }}>▶</button>
       </div>
-
-      {/* Editor area */}
-      <div style={{ position: 'fixed', top: '44px', left: 0, right: 0, bottom: '64px', display: 'flex', overflow: 'hidden', background: '#1e1e1e' }}>
-        <div ref={lineNumbersRef} id="line-numbers" style={{ width: '46px', background: '#1e1e1e', borderRight: '1px solid #383838', overflow: 'hidden', userSelect: 'none', flexShrink: 0, paddingTop: '8px', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', lineHeight: '21px', color: '#4a4a4a', textAlign: 'right', paddingRight: '9px' }}></div>
-        <div ref={editorInnerRef} id="editor-inner" style={{ flex: 1, position: 'relative', overflow: 'auto', background: '#1e1e1e' }}>
-          <div ref={lineHLRef} id="line-highlight" style={{ position: 'absolute', left: 0, right: 0, height: '21px', background: '#ffffff06', borderLeft: '2px solid #f5a623', pointerEvents: 'none', transition: 'top 0.04s' }}></div>
-          <textarea ref={editorRef} id="code-editor" spellCheck="false" style={{ position: 'absolute', top: 0, left: 0, width: '100%', minHeight: '100%', background: 'transparent', border: 'none', outline: 'none', resize: 'none', color: '#d4d4d4', fontFamily: 'JetBrains Mono, monospace', fontSize: '13px', lineHeight: '21px', padding: '8px 16px 8px 12px', tabSize: 4, caretColor: '#f5a623', whiteSpace: 'pre', overflowWrap: 'normal', overflowX: 'hidden', wordBreak: 'normal' }}></textarea>
-        </
+      {/* Éditeur */}
+      <div style={{ position: 'fixed', top: '44px', left: 0, right: 0, bottom: '24px', display: 'flex' }}>
+        <div ref={lineNumbersRef} style={{ width: '46px', background: '#1e1e1e', borderRight: '1px solid #383838', overflow: 'hidden', paddingTop: '8px', fontFamily: 'monospace', fontSize: '12px', lineHeight: '21px', color: '#4a4a4a', textAlign: 'right', paddingRight: '9px' }}></div>
+        <div ref={editorInnerRef} style={{ flex: 1, position: 'relative', overflow: 'auto' }}>
+          <div ref={lineHLRef} style={{ position: 'absolute', left: 0, right: 0, height: '21px', background: '#ffffff06', borderLeft: '2px solid #f5a623', pointerEvents: 'none' }}></div>
+          <textarea ref={editorRef} style={{ position: 'absolute', top: 0, left: 0, width: '100%', minHeight: '100%', background: 'transparent', border: 'none', outline: 'none', resize: 'none', color: '#d4d4d4', fontFamily: 'monospace', fontSize: '13px', lineHeight: '21px', padding: '8px 16px 8px 12px', caretColor: '#f5a623', whiteSpace: 'pre' }}></textarea>
+        </div>
+      </div>
+      {/* Barre de statut */}
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, height: '24px', background: '#f5a623', display: 'flex', alignItems: 'center', padding: '0 10px', zIndex: 100 }}>
+        <div ref={stLangRef} style={{ color: '#1a1a1a', fontSize: '11px', fontWeight: '600', paddingRight: '8px', borderRight: '1px solid #00000025' }}>HTML</div>
+        <div ref={stPosRef} style={{ color: '#1a1a1a', fontSize: '11px', fontWeight: '600', paddingLeft: '8px' }}>Ln 1, Col 1</div>
+        <div ref={stCharsRef} style={{ color: '#1a1a1a', fontSize: '11px', fontWeight: '600', paddingLeft: '8px' }}>0 car.</div>
+        <div ref={stMsgRef} style={{ flex: 1, textAlign: 'right', color: '#1a1a1a', fontSize: '11px', fontWeight: '600', opacity: 0, transition: 'opacity 0.2s' }}></div>
+      </div>
+      {/* Modal */}
+      <div ref={modalOverlayRef} style={{ display: 'none', position: 'fixed', inset: 0, background: '#000000bb', zIndex: 200, alignItems: 'center', justifyContent: 'center' }} onClick={closeModal}>
+        <div style={{ background: '#252526', border: '1px solid #383838', borderRadius: '8px', width: '80%', maxWidth: '600px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <div style={{ padding: '10px', background: '#1a1a1a', display: 'flex', justifyContent: 'space-between' }}>
+            <span ref={modalTitleRef}>Output</span>
+            <button onClick={closeModal} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>✕</button>
+          </div>
+          <div style={{ overflow: 'auto', padding: '10px' }}>
+            <pre ref={modalOutputRef} style={{ fontFamily: 'monospace', color: '#d4d4d4' }}></pre>
+            <iframe ref={previewFrameRef} style={{ display: 'none', width: '100%', height: '400px' }} title="preview"></iframe>
+          </div>
+        </div>
+      </div>
+      <div ref={toastRef} style={{ position: 'fixed', bottom: '30px', left: '50%', transform: 'translateX(-50%)', background: '#252526', border: '1px solid #383838', borderRadius: '6px', padding: '7px 14px', fontSize: '12px', color: '#d4d4d4', opacity: 0, transition: 'opacity 0.2s', pointerEvents: 'none' }}></div>
+    </div>
+  );
+}
